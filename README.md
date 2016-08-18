@@ -104,6 +104,24 @@ Mailboxer.setup do |config|
 end
 ```
 
+If you have subclassed the Mailboxer::Notification class, you can specify the mailers using a member method:
+
+```
+class NewDocumentNotification < Mailboxer::Notification
+  def mailer_class
+    NewDocumentNotificationMailer
+  end
+end
+
+class NewCommentNotification < Mailboxer::Notification
+  def mailer_class
+    NewDocumentNotificationMailer
+  end
+end
+```
+
+Otherwise, the mailer class will be determined by appending 'Mailer' to the mailable class name.
+
 ### Attachments
 
 You can change the uploader to suit your needs by replacing the default one
