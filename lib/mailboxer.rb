@@ -21,6 +21,7 @@ module Mailboxer
   @@subject_max_length = 255
   mattr_accessor :body_max_length
   @@body_max_length = 32000
+  mattr_accessor :attachment_uploader
   mattr_accessor :notification_mailer
   mattr_accessor :message_mailer
   mattr_accessor :custom_deliver_proc
