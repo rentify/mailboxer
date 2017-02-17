@@ -2,6 +2,7 @@ class Mailboxer::Message < Mailboxer::Notification
   attr_accessible :attachment if Mailboxer.protected_attributes?
   self.table_name = :mailboxer_notifications
 
+  has_many :attachments, autosave: true, foreign_key: :mailboxer_message_id
   belongs_to :conversation, :validate => true, :autosave => true
   validates_presence_of :sender
 
@@ -11,12 +12,18 @@ class Mailboxer::Message < Mailboxer::Notification
     where(:conversation_id => conversation.id)
   }
 
-  mount_uploader :attachment, Mailboxer::AttachmentUploader
-
   class << self
     #Sets the on deliver callback method.
     def on_deliver(callback_method)
       self.on_deliver_callback = callback_method
+    end
+  end
+
+  def attachment=(files)
+    files = [files] unless files.is_a?(Array)
+
+    files.each do |file|
+      attachments.new(file: file)
     end
   end
 
