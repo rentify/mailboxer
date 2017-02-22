@@ -21,5 +21,5 @@ Mailboxer.setup do |config|
   config.body_max_length = 32000
 
   # Configure the attachment uploader
-  config.attachment_uploader = Mailboxer::AttachmentUploader
+  # config.attachment_uploader = Mailboxer::AttachmentUploader
 end
