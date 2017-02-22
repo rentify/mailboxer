@@ -104,6 +104,17 @@ Mailboxer.setup do |config|
 end
 ```
 
+### Attachments
+
+You can change the uploader to suit your needs by replacing the default one
+
+```ruby
+Mailboxer.setup do |config|
+  ...
+  config.attachment_uploader = Mailboxer::AttachmentUploader
+end
+```
+
 ### User identities
 
 Users must have an identity defined by a `name` and an `email`. We must ensure that Messageable models have some specific methods. These methods are:

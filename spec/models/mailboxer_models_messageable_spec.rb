@@ -307,10 +307,22 @@ describe "Mailboxer::Models::Messageable through User" do
     expect(@conversation.receipts_for(@entity1).first.trashed).to eq true
   end
 
-  it "should be able to read attachment" do
-    @receipt = @entity1.send_message(@entity2, "Body", "Subject", nil, File.open('spec/testfile.txt'))
-    @conversation = @receipt.conversation
-    expect(@conversation.messages.first.attachment_identifier).to eq 'testfile.txt'
+  context 'for one attachment' do
+    it 'should create a new Mailboxer::Attachment' do
+      expect do
+        @entity1.send_message(@entity2, 'Body', 'Subject', nil, File.open('spec/testfile.txt'))
+      end.to change(Mailboxer::Attachment, :count).by(1)
+    end
+  end
+
+  context 'for more than one attachment' do
+    let(:files) { Array.new(3, File.open('spec/testfile.txt')) }
+
+    it 'should create 3 Mailboxer::Attachments' do
+      expect do
+        @entity1.send_message(@entity2, 'Body', 'Subject', nil, files)
+      end.to change(Mailboxer::Attachment, :count).by(3)
+    end
   end
 
   it "should be the same message time as passed" do
