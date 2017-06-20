@@ -114,7 +114,9 @@ module Mailboxer
           mailbox.receipts_for(conversation).mark_as_not_deleted
         end
 
-        reply(conversation, recipients || conversation.last_message.recipients, reply_body, subject, sanitize_text, attachment)
+        recipients = recipients.present? ? recipients : conversation.last_message.recipients
+
+        reply(conversation, recipients, reply_body, subject, sanitize_text, attachment)
       end
 
       #Mark the object as read for messageable.
