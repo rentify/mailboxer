@@ -25,7 +25,11 @@ class Mailboxer::Message < Mailboxer::Notification
     files = [files] unless files.is_a?(Array)
 
     files.each do |file|
-      attachments.new(file: file)
+      if file.is_a?(String) && defined?(CarrierWaveDirect::Uploader)
+        attachments.new(key: file, direct_upload: true)
+      else
+        attachments.new(file: file)
+      end
     end
   end
 

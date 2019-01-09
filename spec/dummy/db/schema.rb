@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170216173739) do
+ActiveRecord::Schema.define(version: 20170524100739) do
 
   create_table "cylons", force: :cascade do |t|
     t.string   "name"
@@ -30,8 +30,9 @@ ActiveRecord::Schema.define(version: 20170216173739) do
   create_table "mailboxer_attachments", force: :cascade do |t|
     t.string   "file"
     t.integer  "mailboxer_message_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
+    t.boolean  "direct_upload",        default: false
     t.string   "email_message_id"
   end
 
