@@ -32,9 +32,11 @@ ActiveRecord::Schema.define(version: 20170216173739) do
     t.integer  "mailboxer_message_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "email_message_id"
   end
 
   add_index "mailboxer_attachments", ["mailboxer_message_id"], name: "index_mailboxer_attachments_on_mailboxer_message_id"
+  add_index "mailboxer_attachments", ["email_message_id"], name: "index_mailboxer_attachments_on_email_message_id"
 
   create_table "mailboxer_conversation_opt_outs", force: :cascade do |t|
     t.integer "unsubscriber_id"
@@ -67,12 +69,14 @@ ActiveRecord::Schema.define(version: 20170216173739) do
     t.datetime "created_at",                           null: false
     t.boolean  "global",               default: false
     t.datetime "expires"
+    t.string   "email_message_id"
   end
 
   add_index "mailboxer_notifications", ["conversation_id"], name: "index_mailboxer_notifications_on_conversation_id"
   add_index "mailboxer_notifications", ["notified_object_id", "notified_object_type"], name: "index_mailboxer_notifications_on_notified_object_id_and_type"
   add_index "mailboxer_notifications", ["sender_id", "sender_type"], name: "index_mailboxer_notifications_on_sender_id_and_sender_type"
   add_index "mailboxer_notifications", ["type"], name: "index_mailboxer_notifications_on_type"
+  add_index "mailboxer_notifications", ["email_message_id"], name: "index_mailboxer_notifications_on_email_message_id"
 
   create_table "mailboxer_receipts", force: :cascade do |t|
     t.integer  "receiver_id"

@@ -6,6 +6,8 @@ class Mailboxer::Message < Mailboxer::Notification
   belongs_to :conversation, :validate => true, :autosave => true
   validates_presence_of :sender
 
+  after_create :associate_attachments
+
   class_attribute :on_deliver_callback
   protected :on_deliver_callback
   scope :conversation, lambda { |conversation|
@@ -52,5 +54,17 @@ class Mailboxer::Message < Mailboxer::Notification
       on_deliver_callback.call(self) if on_deliver_callback
     end
     sender_receipt
+  end
+
+  private
+
+  def associate_attachments
+    return unless email_message_id
+
+    Mailboxer::Attachment.where(email_message_id: email_message_id)
+                         .where(mailboxer_message_id: nil)
+                         .each do |attachment|
+      attachment.update_attribute(mailboxer_message_id: id)
+    end
   end
 end
