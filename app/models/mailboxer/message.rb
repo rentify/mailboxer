@@ -68,7 +68,7 @@ class Mailboxer::Message < Mailboxer::Notification
     Mailboxer::Attachment.where(email_message_id: email_message_id)
                          .where(mailboxer_message_id: nil)
                          .each do |attachment|
-      attachment.update_attribute(mailboxer_message_id: id)
+      attachment.update_attributes(mailboxer_message_id: id)
     end
   end
 end
