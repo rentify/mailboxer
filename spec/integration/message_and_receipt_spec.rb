@@ -185,6 +185,21 @@ describe "Messages And Mailboxer::Receipts", type: :integration do
       it "should be associated to the same conversation" do
         expect(@message1.conversation.id).to eq @message2.conversation.id
       end
+
+      context 'a new set of recipients' do
+        let!(:entity1) { FactoryGirl.create(:user) }
+        let!(:entity2) { FactoryGirl.create(:user) }
+        let!(:entity3) { FactoryGirl.create(:user) }
+        let!(:entity4) { FactoryGirl.create(:user) }
+        let(:receipt1) { entity1.send_message(entity2, 'Body', 'Subject') }
+        let(:receipt2) { entity2.reply_to_conversation(receipt1.conversation, 'Reply body', recipients: [entity1, entity2, entity4]) }
+        let!(:message1) { receipt1.notification }
+        let!(:message2) { receipt2.notification }
+
+        it 'has the correct recipients' do
+          expect(message2.recipients).to match_array([entity1, entity2, entity4])
+        end
+      end
     end
   end
 
