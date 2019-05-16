@@ -79,19 +79,26 @@ describe Mailboxer::Conversation do
 
   describe "scopes" do
     let(:participant) { FactoryGirl.create(:user) }
+    let(:entity3) { FactoryGirl.create(:user)}
     let!(:inbox_conversation) { entity1.send_message(participant, "Body", "Subject").notification.conversation }
     let!(:sentbox_conversation) { participant.send_message(entity1, "Body", "Subject").notification.conversation }
-
+    let!(:conversation_with_multiple_entities) {entity1.send_message([participant, entity3], "Body", "Subject").notification.conversation}
 
     describe ".participant" do
       it "finds conversations with receipts for participant" do
-        expect(Mailboxer::Conversation.participant(participant)).to eq [sentbox_conversation, inbox_conversation]
+        expect(Mailboxer::Conversation.participant(participant)).to eq [
+          conversation_with_multiple_entities,
+          sentbox_conversation,
+          inbox_conversation
+        ]
       end
     end
 
     describe ".inbox" do
       it "finds inbox conversations with receipts for participant" do
-        expect(Mailboxer::Conversation.inbox(participant)).to eq [inbox_conversation]
+        expect(Mailboxer::Conversation.inbox(participant)).to eq [
+          conversation_with_multiple_entities, inbox_conversation
+        ]
       end
     end
 
@@ -112,7 +119,11 @@ describe Mailboxer::Conversation do
 
     describe ".unread" do
       it "finds unread conversations with receipts for participant" do
-        [sentbox_conversation, inbox_conversation].each {|c| c.mark_as_read(participant) }
+        [
+          sentbox_conversation,
+          inbox_conversation,
+          conversation_with_multiple_entities
+        ].each { |c| c.mark_as_read(participant) }
         unread_conversation = entity1.send_message(participant, "Body", "Subject").notification.conversation
 
         expect(Mailboxer::Conversation.unread(participant)).to eq [unread_conversation]
@@ -121,13 +132,26 @@ describe Mailboxer::Conversation do
 
     describe ".between" do
       it "finds conversations where two participants participate" do
-        expect(Mailboxer::Conversation.between(entity1, participant)).to eq [sentbox_conversation, inbox_conversation]
+        expect(Mailboxer::Conversation.between(entity1, participant)).to eq [
+          conversation_with_multiple_entities,
+          sentbox_conversation,
+          inbox_conversation
+        ]
       end
 
       it "does not find conversations if the participants have not interacted yet" do
         expect(Mailboxer::Conversation.between(participant, entity2)).to eq []
       end
+    end
 
+    describe ".only_between" do
+      it "finds conversations where only two specific participants participate" do
+        expect(Mailboxer::Conversation.only_between(entity1, participant).first).to eq sentbox_conversation
+      end
+
+      it "does not find conversations if the participants have not interacted yet" do
+        expect(Mailboxer::Conversation.between(participant, entity2)).to eq []
+      end
     end
   end
 
@@ -159,6 +183,38 @@ describe Mailboxer::Conversation do
     it "returns false if one has not deleted the conversation" do
       conversation.mark_as_deleted(entity1)
       expect(conversation.is_orphaned?).to be false
+    end
+  end
+
+  describe '#messages_for' do
+    context 'before deleted' do
+      it 'return all messages for user' do
+        expect(conversation.messages_for(entity1).count).to eq 4
+        expect(conversation.messages_for(entity2).count).to eq 4
+      end
+    end
+
+    context 'after deleted' do
+      before do
+        conversation.mark_as_deleted(entity1)
+      end
+      it 'return no messages for user' do
+        expect(conversation.messages_for(entity1).count).to eq 0
+      end
+      it 'return all messages for other user' do
+
+        expect(conversation.messages_for(entity2).count).to eq 4
+      end
+    end
+
+    context 'after deleted have have new messages' do
+      before do
+        conversation.mark_as_deleted(entity1)
+        entity2.reply_to_conversation(conversation, "Reply after deleted")
+      end
+      it 'return no messages for user' do
+        expect(conversation.messages_for(entity1).count).to eq 1
+      end
     end
   end
 
@@ -231,5 +287,4 @@ describe Mailboxer::Conversation do
       end
     end
   end
-
 end

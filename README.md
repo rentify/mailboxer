@@ -22,7 +22,7 @@ an [issue](https://github.com/ging/mailboxer/issues) to ask for it. It will be g
 will know what you may find useful in the gem.
 
 Mailboxer was born from the great, but outdated, code from [lpsergi /
-acts*as*messageable](https://github.com/psergi/acts_as_messageable).
+acts_as_messageable](https://github.com/psergi/acts_as_messageable).
 
 We are now working to make exhaustive documentation and some wiki
 pages in order to make it even easier to use the gem to its full potential.
@@ -104,6 +104,24 @@ Mailboxer.setup do |config|
 end
 ```
 
+If you have subclassed the Mailboxer::Notification class, you can specify the mailers using a member method:
+
+```ruby
+class NewDocumentNotification < Mailboxer::Notification
+  def mailer_class
+    NewDocumentNotificationMailer
+  end
+end
+
+class NewCommentNotification < Mailboxer::Notification
+  def mailer_class
+    NewDocumentNotificationMailer
+  end
+end
+```
+
+Otherwise, the mailer class will be determined by appending 'Mailer' to the mailable class name.
+
 ### Attachments
 
 You can change the uploader to suit your needs by replacing the default one
@@ -146,6 +164,7 @@ Mailboxer.setup do |config|
   #Configures the methods needed by mailboxer
   config.email_method = :mailboxer_email
   config.name_method = :name
+  config.notify_method = :notify
   # ...
 end
 ```
@@ -155,9 +174,10 @@ You may change whatever you want or need. For example:
 ```ruby
 config.email_method = :notification_email
 config.name_method = :display_name
+config.notify_method = :notify_mailboxer
 ```
 
-Will use the method `notification_email(object)` instead of `mailboxer_email(object)` and `display_name` for `name`.
+Will use the method `notification_email(object)` instead of `mailboxer_email(object)`, `display_name` for `name` and `notify_mailboxer` for `notify`.
 
 Using default or custom method names, if your model doesn't implement them, Mailboxer will use dummy methods so as to notify you of missing methods rather than crashing.
 
@@ -255,6 +275,9 @@ conversation.mark_as_deleted participant
   #* A Message
   #* An array with any of them
 alfa.mark_as_deleted conversation
+
+# get available message for specific user
+conversation.messages_for(alfa)
 ```
 ### How can I retrieve my conversations?
 
@@ -300,7 +323,6 @@ Thanks to [Roman Kushnir (@RKushnir)](https://github.com/RKushnir/) you can test
 
 If you need a GUI you should take a look at these links:
 
-* The [rails-messaging](https://github.com/frodefi/rails-messaging) project.
 * The wiki page [GUI Example on a real application](https://github.com/ging/mailboxer/wiki/GUI-Example-on-a-real-application).
 
 ## Contributors

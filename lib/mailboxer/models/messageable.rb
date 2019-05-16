@@ -229,12 +229,15 @@ module Mailboxer
       end
 
       def search_messages(query)
-        @search = Mailboxer::Receipt.search do
-          fulltext query
-          with :receiver_id, self.id
+        if Mailboxer.search_engine == :pg_search
+          Mailboxer::Receipt.search(query).where(receiver_id: self.id).map(&:conversation).uniq
+        else
+          @search = Mailboxer::Receipt.search do
+            fulltext query
+            with :receiver_id, self.id
+          end
+          @search.results.map { |r| r.conversation }.uniq
         end
-
-        @search.results.map { |r| r.conversation }.uniq
       end
     end
   end
